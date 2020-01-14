@@ -1,0 +1,55 @@
+SSH to <your-cluster-mst-node>
+su cdap
+
+Run a Spark Job on YARN
+
+	spark-submit --class org.apache.spark.examples.SparkPi --master yarn-cluster /usr/hdp/current/spark2-client/examples/jars/spark-examples_2.11-2.3.0.2.6.5.0-292.jar 
+
+	Optional: Spark Job Submission command for later modules
+	./bin/spark-submit --class org.apache.spark.examples.SparkPi \
+    --master yarn-client \
+    --num-executors 1 \
+    --driver-memory 512m \
+    --executor-memory 512m \
+    --executor-cores 1 \
+    /usr/hdp/current/spark2-client/examples/jars/spark-examples*.jar 10
+
+Find the finished Spark Job 
+	yarn application -list -appStates FINISHED | grep SparkPi
+
+Observe the logs of the App
+	yarn logs -applicationId application_xxxx | grep Pi
+
+# Aditional command to run Spark in Local Mode
+spark-submit --class org.apache.spark.examples.SparkPi --master local[2] /usr/hdp/current/spark2-client/examples/jars/spark-examples_2.11-2.3.0.2.6.5.0-292.jar 
+
+
+Change to Spark Client directory
+	cd /usr/hdp/current/spark2-client/
+	su spark
+
+Copy a sample data file to HDFS for processing
+	hadoop fs -copyFromLocal /etc/hadoop/conf/log4j.properties /tmp/data
+
+Launch the spark-shell 
+	spark-shell --master yarn-client --driver-memory 512m --executor-memory 512m
+
+Run the following command in spark-shell for word count
+	val file = sc.textFile("/tmp/data")
+	val counts = file.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
+	counts.saveAsTextFile("/tmp/wordcount")
+
+For validating the output on shell itself
+	counts.count()
+
+For full output on spark shell
+	counts.toArray().foreach(println)
+
+Exit scala shell
+
+HDFS commands to check the output
+	hadoop fs -ls /tmp/wordcount
+	hadoop fs -cat /tmp/wordcount/part-00000
+
+Explore the MR and Spark Jobs logs from the respective History Server Web Interfaces.
+

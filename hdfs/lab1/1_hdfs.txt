@@ -1,0 +1,78 @@
+HDFS Lab
+
+Put the files in HDFS
+	SSH to the management node of your cluster (You may need to ask your intructor for the cluster details)
+	Enter the following command to create a directory named test in HDFS.
+		hdfs dfs -mkdir -p <your-initial-4-uniqueness>/test
+	List the directory
+		hdfs dfs -ls <your-initial-4-uniqueness>
+	Create a couple of subdirectories of test named test1 and test2.
+		hdfs dfs -mkdir <your-initial-4-uniqueness>/test/test1
+		hdfs dfs -mkdir <your-initial-4-uniqueness>/test/test2
+	List the test directory recursively 
+		hdfs dfs -ls -R <your-initial-4-uniqueness>
+	Delete the test2 subdirectory
+		hdfs dfs -rm -R <your-initial-4-uniqueness>/test/test2
+	List directories recursively
+		hdfs dfs -ls -R <your-initial-4-uniqueness>
+	Upload file(/tmp/spark-labs/data/twinkle/sample.txt) to HDFS test directory
+		hdfs dfs -put spark-labs/data/twinkle/sample.txt <your-initial-4-uniqueness>/test/
+	Verify the file upload by listing the test directory.
+		hdfs dfs -ls <your-initial-4-uniqueness>/test/
+	Copy the sample.txt of test directory to test/test1 directory. 
+		hdfs dfs -cp <your-initial-4-uniqueness>/test/sample.txt <your-initial-4-uniqueness>/test/test1/
+	Verify if the file is in both the places.
+	Delete the file under test/test1
+		hdfs dfs -rm <your-initial-4-uniqueness>/test/test1/sample.txt
+	View the content of the file from hdfs
+		hdfs dfs -cat <your-initial-4-uniqueness>/test/test1/sample.txt
+		hdfs dfs -tail <your-initial-4-uniqueness>/test/test1/sample.txt
+	download sample.txt file from hdfs to local
+		hdfs dfs -get <your-initial-4-uniqueness>/test/sample.txt .
+	Specify block-size and replication factor
+	change to /tmp/spark-labs if you are not already there.
+		hdfs dfs -D dfs.blocksize=30 -put twinkle/10M.data /tmp/
+		hdfs dfs -D dfs.blocksize=2000000 -put twinkle/10M.data /tmp/
+		hdfs dfs -D dfs.blocksize=1048576 -put twinkle/10M.data /tmp/
+	List the hdfs files under /tmp/
+		hdfs dfs -ls /tmp/
+	View the number of blocks
+		hdfs fsck /tmp/10M.data
+	Find the actual blocks
+		hdfs fsck /tmp/10M.data -files -blocks
+	Run the same command but with -locations flag
+		hdfs fsck /tmp/10M.data -files -blocks -locations
+	Change directory to the following from any one of the slave node.
+		cd /opt/data01/data/current/BP-xxxx/current/finalized
+		stat * / ls -lrth
+		cd to the latest changed directory
+		ll
+		
+		Notice that the actual blocks appear in this folder. Look for files that are exactly 1048576 bytes.
+	You can view contents of a block (not a typical hadoop op though). 
+		tail blk_xxx
+
+
+
+Explore the hdp_training/hdfs-client maven project for writing a Java client for HDFS.
+
+	mvn clean install -X
+
+	scp target/hdfs-client-1.0-SNAPSHOT.jar root@<cluster-mgt-node>:/tmp/artifacts/
+
+	create a file sample.txt with some content into it.
+
+	hadoop jar hdfs-client-1.0-SNAPSHOT.jar com.guavus.training.hdfs.FileSystemOperations hdfs://gvstraining01:8020 add sample.txt hdfs://gvstraining01:8020/tmp/
+
+	hadoop jar hdfs-client-1.0-SNAPSHOT.jar com.guavus.training.hdfs.FileSystemOperations hdfs://gvstraining01:8020 read hdfs://gvstraining01:8020/tmp/sample.txt
+
+
+How would you obtain the NameService Name?
+How would you verify if 8020 is the port for HDFS communication?
+What could happen if you use the NN1/NN2 as the hostname/IP for the above commands?
+Do these operations of HDFS read/writes translate into a mapreduce job?
+How can you verify the number of blocks used by the sample.txt file in hdfs?
+How can verify the location of each block replica in hdfs for sample.txt?
+
+
+
